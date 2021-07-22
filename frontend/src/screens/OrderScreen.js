@@ -52,6 +52,16 @@ const OrderScreen = ({ match, history }) => {
       history.push('/login');
     }
 
+    if (order && order._id !== orderId) {
+      dispatch(getOrderDetails(orderId));
+    }
+    // customers can only view their own orders
+    if (order && userInfo) {
+      if (order.user._id !== userInfo._id && !userInfo.isAdmin) {
+        history.push('/');
+      }
+    }
+
     const addPayPalScript = async () => {
       const { data: clientId } = await axios.get('/api/config/paypal');
       const script = document.createElement('script');
@@ -82,7 +92,16 @@ const OrderScreen = ({ match, history }) => {
     } else {
       setSdkReady(true);
     }
-  }, [dispatch, successPay, orderId, order, successDeliver, history, userInfo]);
+  }, [
+    dispatch,
+    successPay,
+    orderId,
+    order,
+    successDeliver,
+    history,
+    userInfo,
+    match,
+  ]);
 
   const successPaymentHandler = (paymentResult) => {
     // console.log(paymentResult);
